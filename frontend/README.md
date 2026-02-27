@@ -1,87 +1,159 @@
 # Bill Split & Settlement System
 
-A small financial system for tracking shared expenses, computing balances, and simplifying debt settlements.
+A small financial system for tracking shared expenses, computing balances, simplifying debts, and enforcing structured settlements.
 
-Built as part of an Associate Software Engineer assessment.
+Built as part of the Associate Software Engineer assessment.
 
 ---
 
-## 🧠 Problem
+# 1. Problem
 
-Groups frequently share expenses (trips, rent, meals, etc.).  
-Tracking who owes whom becomes complex as expenses grow.
+When multiple people share expenses (e.g., trips, rent, meals), tracking who owes whom becomes increasingly complex as transactions grow.
 
 This system provides:
 
 - Expense creation
 - Balance computation
-- Debt simplification
-- Settlement lifecycle management
-- Deterministic financial correctness
+- Deterministic debt simplification
+- Structured settlement lifecycle
+- Financial correctness guarantees
+
+The focus is structural clarity, correctness, and safe evolution — not feature count.
 
 ---
 
-## 🏗 Tech Stack
+# 2. Tech Stack
 
-Backend:
+## Backend
 - Python
-- Flask (Factory pattern + Blueprints)
-- SQLAlchemy
-- Relational Database
+- Flask (Application Factory Pattern)
+- SQLAlchemy (Relational ORM)
 - Decimal for financial precision
 
-Frontend:
+## Frontend
 - React
 - API abstraction layer
 
-Database:
-- Relational (SQLAlchemy ORM)
+## Database
+- SQLite (development & testing)
+
+## Testing
+- Pytest
+- In-memory SQLite for isolated, repeatable test runs
 
 ---
 
-## 🧱 Architecture
+# 3. How To Run
 
-### Backend Structure
+## Backend
 
-### Key Design Decisions
+    cd backend
+    pip install -r requirements.txt
+    flask run
 
-### 1️⃣ Service Layer Separation
-
-Business logic is isolated in services.
-
-Routes only:
-- Validate request
-- Call service
-- Return response
-
-This prevents logic scattering and improves change resilience.
+Runs on:
+    http://localhost:5000
 
 ---
 
-### 2️⃣ Application Factory Pattern
+## Frontend
 
-The system uses a `create_app()` factory.
+    cd frontend
+    npm install
+    npm start
+
+Runs on:
+    http://localhost:3000
+
+---
+
+## Run Tests
+
+    cd backend
+    pytest
+
+All tests should pass successfully.
+
+---
+
+# 4. Architecture Overview
+
+## Backend Structure
+
+    app/
+    ├── models/
+    ├── services/
+    ├── routes/
+    ├── extensions.py
+    └── __init__.py (Application Factory)
+
+### Service Layer Separation
+
+All business logic resides in the service layer.
+
+Routes:
+- Validate input
+- Delegate to services
+- Return structured JSON responses
+
+Routes do not contain financial logic.
+
+This separation prevents logic leakage and improves maintainability and change resilience.
+
+---
+
+### Application Factory Pattern
+
+The application uses a create_app() factory.
 
 Benefits:
-- Clear initialization flow
+- Clean configuration management
+- Test isolation
+- Extension initialization control
 - Environment flexibility
-- Easy testability
-- Clean extension registration
 
 ---
 
-### 3️⃣ Decimal for Financial Precision
+# 5. Financial Correctness
 
-All financial values use `Decimal`, not float.
+## Why Decimal?
+
+All financial values use Decimal, not float.
 
 Reason:
 - Prevents floating point rounding errors
-- Ensures deterministic financial math
-- Preserves invariant correctness
+- Ensures deterministic calculations
+- Protects accounting invariants
 
 ---
 
-### 4️⃣ Settlement Lifecycle (Enum-Based)
+## Core System Invariants
+
+1. The sum of all group balances must always equal zero.
+2. All financial calculations use Decimal.
+3. Settlement lifecycle must follow controlled state transitions.
+4. Simplified debts must preserve net balances.
+5. Business logic must not exist in route handlers.
+
+These invariants are enforced structurally and verified through automated tests.
+
+---
+
+# 6. Debt Simplification Strategy
+
+Balances are computed first.
+
+A deterministic simplification algorithm then:
+
+- Matches debtors to creditors
+- Reduces the number of transactions
+- Preserves total accounting integrity
+
+The algorithm prioritizes clarity and determinism over theoretical optimal complexity.
+
+---
+
+# 7. Settlement Lifecycle
 
 Settlements move through controlled states:
 
@@ -90,112 +162,98 @@ Settlements move through controlled states:
 - completed
 - disputed
 
-Invalid transitions are not allowed.
+Invalid transitions are rejected.
 
 This prevents inconsistent financial states.
 
----
-
-### 5️⃣ Debt Simplification Algorithm
-
-Balances are computed first.
-
-Then a deterministic simplification algorithm:
-- Matches largest debtors to largest creditors
-- Minimizes transaction count
-- Preserves zero-sum invariant
-
-System invariant:
-Total balances always sum to zero.
+Both expense-linked settlements and direct group-level settlements are supported.
 
 ---
 
-## 🔒 System Invariants
+# 8. Verification Strategy
 
-1. Sum of all balances = 0  
-2. All financial values use Decimal  
-3. Settlements cannot skip lifecycle states  
-4. Simplified debts preserve net balances  
-5. Business logic does not exist in route handlers  
+The system includes automated tests verifying:
 
----
-
-## 🔄 Change Resilience
-
-The system is designed so that:
-
-- Adding new expense types does not impact settlement logic
-- Changing debt simplification algorithm does not impact API layer
-- UI changes do not affect backend invariants
-- Financial rules are centralized in services
-
----
-
-## 🧪 Verification Strategy
-
-The system is structured to support automated tests.
-
-Key behaviors verified:
-
-- Expense creation correctness
-- Balance computation accuracy
-- Settlement lifecycle enforcement
-- Debt simplification consistency
 - Zero-sum invariant preservation
+- Settlement lifecycle enforcement
+- Debt simplification behavior
+- Validation rule enforcement
+
+Tests run against an in-memory database to ensure repeatability and isolation.
+
+Verification focuses on behavior and invariants — not implementation details.
 
 ---
 
-## 📊 Observability
+# 9. Observability
 
-- API returns structured JSON responses
-- HTTP status codes reflect failure states
-- Errors are surfaced to frontend clearly
-- CORS configured for controlled access
+- Structured JSON API responses
+- Meaningful HTTP status codes
+- Clear validation error messages
+- Frontend surfaces backend failures
+- CORS configured for controlled cross-origin access
+
+Failures are visible and diagnosable.
 
 ---
 
-## 🤖 AI Usage
+# 10. Change Resilience
+
+The system is structured so that:
+
+- New financial rules do not affect routing logic.
+- Algorithm changes are isolated to services.
+- UI changes do not impact backend invariants.
+- New endpoints do not require cross-layer refactoring.
+
+The architecture supports safe incremental evolution.
+
+---
+
+# 11. AI Usage
 
 AI tools were used to:
+
 - Explore architectural tradeoffs
-- Review edge cases in financial math
-- Validate lifecycle constraints
+- Validate financial edge cases
+- Stress-test invariant enforcement
+- Improve structural clarity
 
-All AI-generated code was manually reviewed and tested.
+All AI-generated suggestions were manually reviewed and verified.
 
-AI was treated as a collaborator, not an authority.
-
----
-
-## ⚠️ Tradeoffs
-
-- Focused on structural correctness over feature count
-- UI intentionally minimal
-- No authentication layer (out of scope)
-- Simplification algorithm prioritizes determinism over optimal complexity
+AI was treated as an assistant — not an authority.
 
 ---
 
-## 🚀 Possible Extensions
+# 12. Tradeoffs
+
+- Prioritized structural clarity over UI polish.
+- Focused on correctness over feature breadth.
+- No authentication layer (out of scope for this assessment).
+- Simplification algorithm optimized for determinism, not global optimality.
+
+---
+
+# 13. Possible Extensions
 
 - Recurring expenses
 - Partial settlements
 - Multi-currency support
 - Authentication & authorization
-- Real-time updates
 - Audit logs
+- Real-time updates
 
-The current structure supports these without major refactoring.
+The current architecture supports these without major refactoring.
 
 ---
 
-## 🏁 Conclusion
+# Conclusion
 
 This system prioritizes:
 
-- Correctness over cleverness
+- Simplicity over cleverness
+- Correctness over speed
 - Structure over feature volume
-- Determinism over complexity
-- Change resilience over quick hacks
+- Verification over assumption
 
-It demonstrates how small systems can be designed safely and predictably.
+It demonstrates how small systems can remain understandable, deterministic, and resilient as they evolve.
